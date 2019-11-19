@@ -3,25 +3,108 @@
   <head>
     <script src="jquery.js"></script>
     <script src="data_generator.js"></script>
+    <script src="jquery.timeago.js" type="text/javascript"></script>
+    <link rel="stylesheet" type="text/css" href="style.css"> 
   </head>
   <body>
+    <div class="container">
+    <header>
+      <h1>TWIDDLER</h1>
+    </header>
+    <nav>
+      <h2>WHAT'S HAPPENING?</h2>
+      <form id="newTweet">
+        <label for="visitorName"></label>
+        <input type="text" id="visitorName" value="username"><br>
+        <label for="visitorTweet"></label>
+        <input type="text" id="visitorTweet" value="message"><br>
+        <input type="submit" id="tweetBtn" value="Tweet">
+      </form>
+    </nav>
+    <section class="left">
+    </section>
+    <section class="right">
+      <h2>TRENDS</h2>
+    </section>
+    <footer>
+      <h2>LINKS</h2>
+    </footer>
+  </div>
     <script>
-
       $(document).ready(function(){
-        var $body = $('body');
-        $body.html('');
+        var $left = $('.left');
+        $left.html('');
+        
+        var $pageTitle = $("<h2>HOME</h2>");
+        $left.append($pageTitle);
 
-        var index = streams.home.length - 1;
-        while(index >= 0){
-          var tweet = streams.home[index];
-          var $tweet = $('<div></div>');
-          $tweet.text('@' + tweet.user + ': ' + tweet.message);
-          $tweet.appendTo($body);
-          index -= 1;
+        var $img = $("<img src='logo.png'></img>");
+        $left.append($img);
+         
+        var $backHomeLink = $("<a class='backLink'>Go Back</a>"); 
+        $left.append($backHomeLink);
+
+        var $tweets = $('<div class="tweets"></div>');
+        $left.append($tweets);
+
+        function loadPage() { 
+          $pageTitle.text('HOME');
+          $backHomeLink.text('New Tweets');
+          displayTweets(streams.home);
+        }
+         
+        loadPage();
+          
+        function displayTweets(tweets) {
+          $tweets.html('');
+          var index = tweets.length - 1;
+          while(index >= 0){
+            var tweet = tweets[index];
+             getTweet(tweet);
+             index -= 1;
+          }
+        } 
+
+        function getTweet(tweet) {
+          var $tweet = $('<div></div>');  
+          var $user = $('<b></b>');
+          $user.append('@<a class="user">' + tweet.user + '</a>: ');
+          $user.appendTo($tweet);
+
+          var $message = $('<span></span>');
+          $message.append(tweet.message);
+          $message.appendTo($tweet);
+          $tweet.append('<br>');
+          
+          var $timestamp = $('<i class="timestamp"></i>');
+          $timestamp.append('<i class="time"></i>');
+          $timestamp.append(jQuery.timeago(tweet.created_at)); 
+          $timestamp.appendTo($tweet); 
+          $tweet.appendTo($tweets);
         }
 
-      });
+        function displayUserTweets(user) {
+          $pageTitle.text(user).css("text-transform", "uppercase");
+          displayTweets(streams.users[user]);
+          $backHomeLink.text('Go back');
+        }
 
+        $('.user').on('click', function(event) {
+          displayUserTweets(event.target.text);
+        });
+
+        $('.backLink').on('click', function(event) {
+          location.reload();
+        });
+
+        /*$('#newTweet').submit(function(event) {
+          event.preventDefault();
+          window.visitor = $('#visitorName').val()
+          writeTweet($("#visitorTweet").val());
+          loadPage();
+        });*/
+
+      });
     </script>
   </body>
 </html>
